@@ -121,4 +121,12 @@ Pokud chceš dokumentaci ještě více rozdělit do samostatných souborů, mů�
 - [UserRepository](docs/UserRepository.md)
 - [User](docs/User.md)
 - [GlobalExceptionHandler](docs/GlobalExceptionHandler.md)
+## 🧪 Testování API pomocí Postmanu
+
+Pro otestování API můžeš použít [Postman kolekci](postman/genesisresources_postman_collection.json).
+
+1. Otevři Postman.
+2. Importuj soubor: `postman/genesisresources_postman_collection.json`.
+3. Spusť jednotlivé API požadavky.
+
 
