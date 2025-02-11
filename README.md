@@ -129,4 +129,7 @@ Pro otestování API můžeš použít [Postman kolekci](postman/genesisresource
 2. Importuj soubor: `postman/genesisresources_postman_collection.json`.
 3. Spusť jednotlivé API požadavky.
 
+## 🗄️ Struktura databáze
+
+ER diagram databáze najdeš zde: [genesis_db_schema.png](database/genesis_db_schema.png).
 
