@@ -60,6 +60,65 @@ mvn spring-boot:run
 
 
 
+---
+
+### **Krok 4: Uložení změn**
+
+1. Po přidání textu sjeď dolů na stránce.
+2. Do pole **Commit changes** napiš zprávu, například:
 
 
+
+
+3. Vyber možnost **Commit directly to the `master` branch** (pokud chceš změny uložit přímo).
+4. Klikni na **Commit changes**.
+
+---
+
+### **Krok 5: Ověř, že je dokumentace vidět**
+
+1. Po uložení změn se automaticky vrátíš na hlavní stránku repozitáře.
+2. Měl bys vidět přidanou sekci **"📚 Popis tříd a jejich funkcí"** přímo na úvodní stránce repozitáře.
+
+---
+
+## **2️⃣ (Volitelné) – Vytvoření samostatné složky `docs/`**
+
+Pokud chceš dokumentaci ještě více rozdělit do samostatných souborů, můžeme vytvořit složku **`docs/`**.
+
+---
+
+### **Krok 1: Vytvoření složky `docs/`**
+
+1. Na hlavní stránce repozitáře klikni na **`Add file`** > **`Create new file`**.
+2. Do názvu souboru napiš: **`docs/UserController.md`**.
+
+---
+
+### **Krok 2: Přidání dokumentace do `docs/UserController.md`**
+
+1. Do souboru vlož například:
+
+```markdown
+# UserController.java
+
+**Umístění:** `src/main/java/com/genesisresources/controller/UserController.java`
+
+## Popis
+`UserController` je hlavní REST kontroler pro práci s uživateli. Zajišťuje CRUD operace a směruje HTTP požadavky do `UserService`.
+
+## Metody:
+- `createUser(@RequestBody User user)` – Vytvoří nového uživatele.
+- `getUserById(@PathVariable Long id, @RequestParam Boolean detail)` – Získá uživatele podle ID.
+- `getAllUsers(@RequestParam Boolean detail)` – Vrátí seznam všech uživatelů.
+- `updateUser(@RequestBody User user)` – Aktualizuje informace o uživateli.
+- `deleteUser(@PathVariable Long id)` – Smaže uživatele podle ID.
+
+## 📄 Dokumentace
+
+- [UserController](docs/UserController.md)
+- [UserService](docs/UserService.md)
+- [UserRepository](docs/UserRepository.md)
+- [User](docs/User.md)
+- [GlobalExceptionHandler](docs/GlobalExceptionHandler.md)
 
