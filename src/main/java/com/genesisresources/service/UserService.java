@@ -1,103 +1,67 @@
 package com.genesisresources.service;
 
 import com.genesisresources.model.User;
-import com.genesisresources.reposity.UserRepository;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import jakarta.servlet.http.HttpServletResponse;
+import com.genesisresources.repository.JpaUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final JpaUserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    @Autowired
+    public UserService(JpaUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    // Vytvoření uživatele nebo aktualizace podle personId
     public String createUser(User user) {
-        if (userRepository.personIdExists(user.getPersonId())) {
-            userRepository.updateUserByPersonId(user);
-            return "User updated successfully";
+        if (user.getPersonId() == null || user.getPersonId().isBlank()) {
+            throw new IllegalArgumentException("PersonID nesmí být prázdné.");
         }
-        user.setUuid(UUID.randomUUID().toString());
-        userRepository.createUser(user);
-        return "User created successfully";
+
+        if (userRepository.existsByPersonId(user.getPersonId())) {
+            throw new IllegalArgumentException("Tento personID již existuje: " + user.getPersonId());
+        }
+
+        // Generování UUID, pokud není nastavené
+        if (user.getUuid() == null || user.getUuid().isEmpty()) {
+            user.setUuid(UUID.randomUUID().toString());
+        }
+
+        userRepository.save(user);
+        return "Uživatel byl úspěšně vytvořen.";
     }
 
-    // Načtení uživatele podle ID s možností detailního zobrazení
-    public User getUserById(Long id, boolean detail) {
-        return detail ? userRepository.getUserByIdWithDetails(id) : userRepository.getUserById(id);
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
     }
 
-    // Načtení všech uživatelů s možností detailního zobrazení
-    public List<User> getAllUsers(boolean detail) {
-        return detail ? userRepository.getAllUsersWithDetails() : userRepository.getAllUsers();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
-    // Aktualizace uživatele (pouze jméno a příjmení)
-    public boolean updateUser(User user) {
-        return userRepository.updateUser(user) > 0;
-    }
-
-    // Smazání uživatele podle ID
-    public boolean deleteUser(Long id) {
-        return userRepository.deleteUser(id) > 0;
-    }
-
-
-
-    public void exportUsersToCSV(HttpServletResponse response) {
-        try (CSVWriter writer = new CSVWriter(new PrintWriter(response.getWriter()))) {
-            // Hlavička CSV
-            String[] header = {"ID", "Name", "Surname", "Person ID", "UUID"};
-            writer.writeNext(header);
-
-            // Data
-            List<User> users = getAllUsers(true);  // true = s detaily
-            for (User user : users) {
-                String[] data = {
-                        String.valueOf(user.getId()),
-                        user.getName(),
-                        user.getSurname(),
-                        user.getPersonId(),
-                        user.getUuid()
-                };
-                writer.writeNext(data);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void updateUser(Long id, String name, String surname) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setName(name);
+            user.setSurname(surname);
+            userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("Uživatel s ID " + id + " nebyl nalezen.");
         }
     }
 
-    // Import uživatelů z CSV
-    public String importUsersFromCSV(MultipartFile file) {
-        try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
-            String[] line;
-            reader.readNext();  // Přeskočení hlavičky
-
-            while ((line = reader.readNext()) != null) {
-                User user = new User();
-                user.setName(line[1]);
-                user.setSurname(line[2]);
-                user.setPersonId(line[3]);
-                user.setUuid(line[4]);
-
-                createUser(user);
-            }
-            return "Import byl úspěšný!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Chyba při importu!";
+    public void deleteUser(Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("Uživatel s ID " + id + " neexistuje.");
         }
     }
 }
