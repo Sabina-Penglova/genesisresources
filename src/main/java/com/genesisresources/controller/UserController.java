@@ -2,16 +2,15 @@ package com.genesisresources.controller;
 
 import com.genesisresources.model.User;
 import com.genesisresources.service.UserService;
-
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -23,54 +22,73 @@ public class UserController {
         this.userService = userService;
     }
 
-    // 1. Vytvoření nového uživatele
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
+        try {
+            String response = userService.createUser(user);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // 2. Načtení jednoho uživatele podle ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id,
-                                            @RequestParam(value = "detail", required = false) Boolean detail) {
-        User user = userService.getUserById(id, detail != null && detail);
-        if (user == null) {
+    public ResponseEntity<Object> getUserById(@PathVariable Long id, @RequestParam(required = false) Boolean detail) {
+        Optional<User> user = userService.getUserById(id);
+        if (user.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(user);
+
+        if (Boolean.TRUE.equals(detail)) {
+            return ResponseEntity.ok(user.get()); // Vrátí všechna pole
+        } else {
+            Map<String, Object> basicUser = new HashMap<>();
+            basicUser.put("id", user.get().getId());
+            basicUser.put("name", user.get().getName());
+            basicUser.put("surname", user.get().getSurname());
+            return ResponseEntity.ok(basicUser);
+        }
     }
 
-    // 3. Načtení všech uživatelů
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(@RequestParam(value = "detail", required = false) Boolean detail) {
-        return ResponseEntity.ok(userService.getAllUsers(detail != null && detail));
+    public ResponseEntity<?> getAllUsers(@RequestParam(required = false) Boolean detail) {
+        List<User> users = userService.getAllUsers();
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        if (Boolean.TRUE.equals(detail)) {
+            return ResponseEntity.ok(users);
+        } else {
+            List<Map<String, Object>> basicUsers = users.stream().map(user -> {
+                Map<String, Object> basicUser = new HashMap<>();
+                basicUser.put("id", user.getId());
+                basicUser.put("name", user.getName());
+                basicUser.put("surname", user.getSurname());
+                return basicUser;
+            }).collect(Collectors.toList());
+
+            return ResponseEntity.ok(basicUsers);
+        }
     }
 
-    // 4. Aktualizace uživatele
-    @PutMapping
-    public ResponseEntity<String> updateUser(@RequestBody User user) {
-        return userService.updateUser(user) ? ResponseEntity.ok("User updated") : ResponseEntity.notFound().build();
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User user) {
+        try {
+            userService.updateUser(id, user.getName(), user.getSurname());
+            return ResponseEntity.ok("Uživatel byl úspěšně aktualizován.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // 5. Smazání uživatele
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        return userService.deleteUser(id) ? ResponseEntity.ok("User deleted") : ResponseEntity.notFound().build();
-    }
-
-    // 6. Export uživatelů do CSV
-    @GetMapping("/export")
-    public void exportUsersToCSV(HttpServletResponse response) {
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=users.csv");
-
-        userService.exportUsersToCSV(response);
-    }
-
-    // 7. Import uživatelů z CSV
-    @PostMapping("/import")
-    public ResponseEntity<String> importUsersFromCSV(@RequestParam("file") MultipartFile file) {
-        String message = userService.importUsersFromCSV(file);
-        return ResponseEntity.ok(message);
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok("Uživatel byl úspěšně smazán.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
