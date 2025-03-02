@@ -12,10 +12,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult()
-                .getAllErrors()
-                .get(0)
-                .getDefaultMessage();
+        String errorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         return new ResponseEntity<>(new ApiResponse<>(false, errorMessage), HttpStatus.BAD_REQUEST);
     }
 
