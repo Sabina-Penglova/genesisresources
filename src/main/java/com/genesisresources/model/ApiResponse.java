@@ -15,7 +15,6 @@ public class ApiResponse<T> {
         this(success, message, null);
     }
 
-    // Gettery a settery
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
 
