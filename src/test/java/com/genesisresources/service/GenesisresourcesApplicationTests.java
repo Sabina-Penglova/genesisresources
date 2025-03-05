@@ -1,29 +1,27 @@
-package com.genesisresources.service;
-
-
+package com.genesisresources;
 
 import com.genesisresources.model.User;
-import com.genesisresources.repository.UserRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
+import com.genesisresources.repository.JpaUserRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GenesisresourcesApplicationTests {
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private UserRepository userRepository;
+    private JpaUserRepository userRepository;
 
     private HttpHeaders headers;
 
@@ -46,7 +44,11 @@ public class GenesisresourcesApplicationTests {
 
     @Test
     void testCreateUser() {
-        User newUser = new User("TestUser", "TestSurname", "P004");
+        User newUser = new User();
+        newUser.setName("TestUser");
+        newUser.setSurname("TestSurname");
+        newUser.setPersonId("P004");
+        newUser.setUuid(UUID.randomUUID().toString());
 
         HttpEntity<User> request = new HttpEntity<>(newUser, headers);
         ResponseEntity<String> response = restTemplate.exchange(
@@ -57,17 +59,22 @@ public class GenesisresourcesApplicationTests {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Uživatel byl úspěšně vytvořen.");
+        assertThat(response.getBody()).isEqualTo("User created successfully.");
     }
 
     @Test
     void testGetUserById() {
-        User user = new User("John", "Doe", "P001");
-        userRepository.createUser(user); // Nebo userRepository.save(user);
+        User user = new User();
+        user.setName("John");
+        user.setSurname("Doe");
+        user.setPersonId("P001");
+        user.setUuid(UUID.randomUUID().toString());
+        userRepository.save(user);
+        Long id = user.getId();
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
         ResponseEntity<User> response = restTemplate.exchange(
-                "/api/v1/users/1",
+                "/api/v1/users/" + id,
                 HttpMethod.GET,
                 request,
                 User.class
@@ -78,11 +85,18 @@ public class GenesisresourcesApplicationTests {
         assertThat(response.getBody().getSurname()).isEqualTo("Doe");
     }
 
-
     @Test
     void testGetAllUsers() {
-        User user1 = new User("John", "Doe", "P001");
-        User user2 = new User("Jane", "Smith", "P002");
+        User user1 = new User();
+        user1.setName("John");
+        user1.setSurname("Doe");
+        user1.setPersonId("P001");
+        user1.setUuid(UUID.randomUUID().toString());
+        User user2 = new User();
+        user2.setName("Jane");
+        user2.setSurname("Smith");
+        user2.setPersonId("P002");
+        user2.setUuid(UUID.randomUUID().toString());
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -95,43 +109,80 @@ public class GenesisresourcesApplicationTests {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(response.getBody()).hasSize(2);
     }
 
     @Test
     void testUpdateUser() {
-        User user = new User("John", "Doe", "P001");
+        User user = new User();
+        user.setName("John");
+        user.setSurname("Doe");
+        user.setPersonId("P001");
+        user.setUuid(UUID.randomUUID().toString());
         userRepository.save(user);
+        Long id = user.getId();
 
         user.setName("UpdatedJohn");
         user.setSurname("UpdatedDoe");
 
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         ResponseEntity<String> response = restTemplate.exchange(
-                "/api/v1/users/1",
+                "/api/v1/users/" + id,
                 HttpMethod.PUT,
                 request,
                 String.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Uživatel byl úspěšně aktualizován.");
+        assertThat(response.getBody()).isEqualTo("User updated successfully.");
     }
 
     @Test
     void testDeleteUser() {
-        User user = new User("ToDelete", "User", "P005");
+        User user = new User();
+        user.setName("ToDelete");
+        user.setSurname("User");
+        user.setPersonId("P005");
+        user.setUuid(UUID.randomUUID().toString());
         userRepository.save(user);
+        Long id = user.getId();
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(
-                "/api/v1/users/1",
+                "/api/v1/users/" + id,
                 HttpMethod.DELETE,
                 request,
                 String.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Uživatel byl úspěšně smazán.");
+        assertThat(response.getBody()).isEqualTo("User deleted successfully.");
+    }
+
+    @Test
+    void testCreateUserWithDuplicatePersonId() {
+        User user1 = new User();
+        user1.setName("Test1");
+        user1.setSurname("User1");
+        user1.setPersonId("P006");
+        user1.setUuid(UUID.randomUUID().toString());
+        userRepository.save(user1);
+
+        User user2 = new User();
+        user2.setName("Test2");
+        user2.setSurname("User2");
+        user2.setPersonId("P006");
+        user2.setUuid(UUID.randomUUID().toString());
+
+        HttpEntity<User> request = new HttpEntity<>(user2, headers);
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/v1/users",
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).contains("This personID already exists");
     }
 }
