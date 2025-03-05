@@ -14,14 +14,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Jméno nesmí být prázdné.")
+    @NotBlank(message = "Name must not be empty.")
     private String name;
 
-    @NotBlank(message = "Příjmení nesmí být prázdné.")
+    @NotBlank(message = "Surname must not be empty.")
     private String surname;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "PersonID nesmí být prázdné.")
+    @NotBlank(message = "PersonID must not be empty.")
     private String personId;
 
     @Column(unique = true, nullable = false)
