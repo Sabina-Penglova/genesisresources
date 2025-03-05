@@ -1,20 +1,18 @@
-# GenesisResources
+# Genesis Resources API
+A simple Spring Boot REST API for managing users, built as a school project.
 
-Spring Boot aplikace pro správu uživatelů s REST API, zabezpečením a testy.
+## Setup
+1. Install MySQL and create a `genesisresources` database.
+2. Run the SQL script in `schema.sql` to set up the table.
+3. Start the application with `mvn spring-boot:run`.
+4. Use the provided Postman collection to test the API.
 
-## Požadavky
-- Java 17
-- MySQL (nastavení v `application.properties`)
-- Maven
+## Endpoints
+- **POST /api/v1/users** - Create a user (requires Basic Auth: `admin/password123`)
+- **GET /api/v1/users** - List all users
+- **GET /api/v1/users/{id}** - Get a user by ID
+- **PUT /api/v1/users/{id}** - Update a user
+- **DELETE /api/v1/users/{id}** - Delete a user
 
-## Spuštění
-1. Nainstaluj MySQL a vytvoř databázi `genesisresources`.
-2. Spusť SQL skript `src/main/resources/schema.sql` pro vytvoření tabulky `users` a iniciačních dat.
-3. Spusť aplikaci pomocí `mvn spring-boot:run` nebo `java -jar target/genesisresources.jar`.
-
-## Testování
-Testy jsou implementovány v balíčku `com.genesisresources.service`. Spusť je pomocí JUnit 5.
-
-## API Endpointy
-- `/api/v1/users` – CRUD operace pro uživatele
-- Zabezpečení: HTTP Basic Auth (uživatel: admin, heslo: password123)
+## Authentication
+- Uses HTTP Basic Authentication with username `admin` and password `password123`.
