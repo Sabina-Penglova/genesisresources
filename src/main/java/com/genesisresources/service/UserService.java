@@ -21,20 +21,19 @@ public class UserService {
 
     public String createUser(User user) {
         if (user.getPersonId() == null || user.getPersonId().isBlank()) {
-            throw new IllegalArgumentException("PersonID nesmí být prázdné.");
+            throw new IllegalArgumentException("PersonID must not be empty.");
         }
 
         if (userRepository.existsByPersonId(user.getPersonId())) {
-            throw new IllegalArgumentException("Tento personID již existuje: " + user.getPersonId());
+            throw new IllegalArgumentException("This personID already exists: " + user.getPersonId());
         }
 
-        // Generování UUID, pokud není nastavené
         if (user.getUuid() == null || user.getUuid().isEmpty()) {
             user.setUuid(UUID.randomUUID().toString());
         }
 
         userRepository.save(user);
-        return "Uživatel byl úspěšně vytvořen.";
+        return "User created successfully.";
     }
 
     public Optional<User> getUserById(Long id) {
@@ -53,7 +52,7 @@ public class UserService {
             user.setSurname(surname);
             userRepository.save(user);
         } else {
-            throw new IllegalArgumentException("Uživatel s ID " + id + " nebyl nalezen.");
+            throw new IllegalArgumentException("User with ID " + id + " not found.");
         }
     }
 
@@ -61,7 +60,7 @@ public class UserService {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         } else {
-            throw new IllegalArgumentException("Uživatel s ID " + id + " neexistuje.");
+            throw new IllegalArgumentException("User with ID " + id + " does not exist.");
         }
     }
 }
