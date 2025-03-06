@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Získání všech uživatelů",
+			"name": "test",
 			"request": {
 				"auth": {
 					"type": "basic",
@@ -109,7 +109,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"UpdatedJohn\",\r\n    \"surname\": \"UpdatedDoe\"\r\n}\r\n",
+					"raw": "{\r\n    \"name\": \"UpdatedUser\",\r\n    \"surname\": \"UpdatedSurname\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -117,7 +117,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/v1/users/1",
+					"raw": "http://localhost:8080/api/v1/users/15",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -127,7 +127,7 @@
 						"api",
 						"v1",
 						"users",
-						"1"
+						"15"
 					]
 				}
 			},
@@ -473,6 +473,38 @@
 						"users"
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
 			},
 			"response": []
 		}
