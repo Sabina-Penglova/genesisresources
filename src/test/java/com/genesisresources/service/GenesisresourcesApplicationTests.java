@@ -1,4 +1,4 @@
-package com.genesisresources;
+package com.genesisresources.service;
 
 import com.genesisresources.model.User;
 import com.genesisresources.repository.JpaUserRepository;
@@ -59,7 +59,7 @@ public class GenesisresourcesApplicationTests {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo("User created successfully.");
+        assertThat(response.getBody()).isEqualTo("Uživatel úspěšně vytvořen.");
     }
 
     @Test
@@ -134,7 +134,7 @@ public class GenesisresourcesApplicationTests {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo("User updated successfully.");
+        assertThat(response.getBody()).isEqualTo("Uživatel úspěšně aktualizován.");
     }
 
     @Test
@@ -156,25 +156,25 @@ public class GenesisresourcesApplicationTests {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo("User deleted successfully.");
+        assertThat(response.getBody()).isEqualTo("Uživatel úspěšně smazán.");
     }
 
     @Test
     void testCreateUserWithDuplicatePersonId() {
-        User user1 = new User();
-        user1.setName("Test1");
-        user1.setSurname("User1");
-        user1.setPersonId("P006");
-        user1.setUuid(UUID.randomUUID().toString());
-        userRepository.save(user1);
+        User existingUser = new User();
+        existingUser.setName("Existující");
+        existingUser.setSurname("Uživatel");
+        existingUser.setPersonId("P007");
+        existingUser.setUuid(UUID.randomUUID().toString());
+        userRepository.save(existingUser);
 
-        User user2 = new User();
-        user2.setName("Test2");
-        user2.setSurname("User2");
-        user2.setPersonId("P006");
-        user2.setUuid(UUID.randomUUID().toString());
+        User newUser = new User();
+        newUser.setName("Nový");
+        newUser.setSurname("Uživatel");
+        newUser.setPersonId("P007");
+        newUser.setUuid(UUID.randomUUID().toString());
 
-        HttpEntity<User> request = new HttpEntity<>(user2, headers);
+        HttpEntity<User> request = new HttpEntity<>(newUser, headers);
         ResponseEntity<String> response = restTemplate.exchange(
                 "/api/v1/users",
                 HttpMethod.POST,
@@ -183,6 +183,6 @@ public class GenesisresourcesApplicationTests {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("This personID already exists");
+        assertThat(response.getBody()).contains("Tento personID již existuje");
     }
 }
