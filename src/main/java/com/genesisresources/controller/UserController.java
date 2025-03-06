@@ -20,6 +20,9 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
+        if (user.getId() != null) {
+            return ResponseEntity.badRequest().body("ID nesmí být uvedeno při vytváření nového uživatele.");
+        }
         try {
             String response = userService.createUser(user);
             return ResponseEntity.ok(response);
@@ -45,7 +48,7 @@ public class UserController {
     public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User user) {
         try {
             userService.updateUser(id, user.getName(), user.getSurname());
-            return ResponseEntity.ok("User updated successfully.");
+            return ResponseEntity.ok("Uživatel úspěšně aktualizován.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -55,7 +58,7 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUser(id);
-            return ResponseEntity.ok("User deleted successfully.");
+            return ResponseEntity.ok("Uživatel úspěšně smazán.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
