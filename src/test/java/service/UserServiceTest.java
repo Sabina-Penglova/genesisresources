@@ -1,7 +1,8 @@
-package com.genesisresources.service;
+package service;
 
 import com.genesisresources.model.User;
 import com.genesisresources.repository.JpaUserRepository;
+import com.genesisresources.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +41,7 @@ public class UserServiceTest {
 
         String result = userService.createUser(user);
 
-        assertThat(result).isEqualTo("User created successfully.");
+        assertThat(result).isEqualTo("Uživatel úspěšně vytvořen.");
         verify(userRepository, times(1)).save(any(User.class));
     }
 
